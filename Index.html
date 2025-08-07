@@ -1,0 +1,163 @@
+<!DOCTYPE html> <!-- Mendeklarasikan bahwa dokumen ini adalah HTML5 -->
+<html lang="id"> <!-- Bahasa utama halaman adalah Bahasa Indonesia -->
+<head>
+  <meta charset="UTF-8"> <!-- Mengatur encoding karakter agar mendukung karakter UTF-8 -->
+  <title>Kalkulator Riyanda XII RPL</title> <!-- Judul halaman yang muncul di tab browser -->
+
+  <style>
+    /* =================== RESET DAN NORMALISASI =================== */
+    * {
+      margin: 0; /* Menghapus margin default semua elemen */
+      padding: 0; /* Menghapus padding default semua elemen */
+      box-sizing: border-box; /* Menyertakan padding & border dalam ukuran elemen */
+    }
+
+    /* =================== GAYA BODY UTAMA =================== */
+    body {
+      font-family: Arial, sans-serif; /* Mengatur font agar terlihat modern */
+      background: lightblue; /* Warna latar belakang abu-abu terang */
+      display: flex; /* Menggunakan Flexbox untuk memudahkan perataan */
+      justify-content: center; /* Memusatkan secara horizontal */
+      align-items: center; /* Memusatkan secara vertikal */
+      height: 100vh; /* Tinggi halaman 100% viewport */
+    }
+
+    /* =================== KALKULATOR CONTAINER =================== */
+    .kalkulator {
+      background: white; /* Warna latar belakang kalkulator putih */
+      padding: 20px; /* Jarak dalam kotak kalkulator */
+      border-radius: 12px; /* Membuat sudut membulat */
+      box-shadow: 0 0 15px rgba(0,0,0,0.1); /* Bayangan halus */
+      width: 350px; /* Lebar tetap untuk kalkulator */
+    }
+
+    /* =================== JUDUL KALKULATOR =================== */
+    .judul {
+      text-align: center; /* Rata tengah */
+      font-weight: bold; /* Teks tebal */
+      font-size: 1.2em; /* Ukuran teks sedang */
+      margin-bottom: 10px; /* Jarak ke bawah */
+      color: #2c3e50; /* Warna teks */
+    }
+
+    /* =================== LAYAR KALKULATOR =================== */
+    input[type="text"] {
+      width: 100%; /* Lebar penuh */
+      height: 50px; /* Tinggi layar */
+      font-size: 1.5em; /* Ukuran font besar agar mudah dibaca */
+      text-align: right; /* Teks rata kanan seperti kalkulator asli */
+      margin-bottom: 10px; /* Jarak dari tombol */
+      padding: 5px; /* Jarak dalam input */
+    }
+
+    /* =================== GRID TOMBOL =================== */
+    .tombol {
+      display: grid; /* Menyusun tombol dalam bentuk grid */
+      grid-template-columns: repeat(4, 1fr); /* 4 kolom yang sama lebar */
+      gap: 10px; /* Jarak antar tombol */
+    }
+
+    /* =================== GAYA TOMBOL UMUM =================== */
+    button {
+      padding: 20px; /* Ukuran dalam tombol */
+      font-size: 1.2em; /* Ukuran teks tombol */
+      border: none; /* Menghapus garis border default */
+      border-radius: 8px; /* Membuat sudut membulat */
+      background: #3498db; /* Warna biru default */
+      color: white; /* Warna teks putih */
+      cursor: pointer; /* Kursor berubah saat hover */
+      transition: 0.2s; /* Transisi halus untuk hover */
+    }
+
+    button:hover {
+      background: #2980b9; /* Warna lebih gelap saat di-hover */
+    }
+
+    /* =================== TOMBOL OPERATOR (+ - * /) =================== */
+    .operator {
+      background: #f39c12; /* Warna oranye untuk tombol operator */
+    }
+
+    .operator:hover {
+      background: #e67e22; /* Warna oranye lebih gelap saat hover */
+    }
+
+    /* =================== TOMBOL CLEAR (C) =================== */
+    .clear {
+      background: #e74c3c; /* Warna merah untuk tombol C */
+    }
+
+    .clear:hover {
+      background: #c0392b; /* Warna merah lebih gelap saat hover */
+    }
+  </style>
+</head>
+
+<body>
+  <!-- =================== KALKULATOR HTML =================== -->
+  <div class="kalkulator">
+    <!-- Judul kalkulator -->
+    <div class="judul">Kalkulator Riyanda</div> <!-- Nama pengguna di tampilan atas -->
+
+    <!-- Layar hasil/input kalkulator -->
+    <input type="text" id="layar" disabled> <!-- Disabled agar tidak bisa diketik manual -->
+
+    <!-- Grid tombol kalkulator -->
+    <div class="tombol">
+      <!-- Baris 1 -->
+      <button onclick="hapus()" class="clear">C</button> <!-- Tombol hapus semua -->
+      <button onclick="tambahLayar('(')">(</button> <!-- Kurung buka -->
+      <button onclick="tambahLayar(')')">)</button> <!-- Kurung tutup -->
+      <button onclick="tambahLayar('/')" class="operator">/</button> <!-- Pembagian -->
+
+      <!-- Baris 2 -->
+      <button onclick="tambahLayar('7')">7</button>
+      <button onclick="tambahLayar('8')">8</button>
+      <button onclick="tambahLayar('9')">9</button>
+      <button onclick="tambahLayar('*')" class="operator">x</button> <!-- Perkalian -->
+
+      <!-- Baris 3 -->
+      <button onclick="tambahLayar('4')">4</button>
+      <button onclick="tambahLayar('5')">5</button>
+      <button onclick="tambahLayar('6')">6</button>
+      <button onclick="tambahLayar('-')" class="operator">-</button> <!-- Pengurangan -->
+
+      <!-- Baris 4 -->
+      <button onclick="tambahLayar('1')">1</button>
+      <button onclick="tambahLayar('2')">2</button>
+      <button onclick="tambahLayar('3')">3</button>
+      <button onclick="tambahLayar('+')" class="operator">+</button> <!-- Penjumlahan -->
+
+      <!-- Baris 5 -->
+      <button onclick="tambahLayar('0')">0</button>
+      <button onclick="tambahLayar('.')">.</button> <!-- Titik desimal -->
+      <button onclick="hitung()" style="grid-column: span 2;">=</button> <!-- Tombol hasil, mengambil 2 kolom -->
+    </div>
+  </div>
+
+  <!-- =================== JAVASCRIPT =================== -->
+  <script>
+    // Ambil elemen layar input
+    const layar = document.getElementById("layar");
+
+    // Fungsi untuk menambahkan angka atau operator ke layar
+    function tambahLayar(nilai) {
+      layar.value += nilai; // Tambahkan nilai ke input
+    }
+
+    // Fungsi untuk menghapus seluruh isi layar
+    function hapus() {
+      layar.value = ""; // Kosongkan layar
+    }
+
+    // Fungsi untuk menghitung ekspresi matematika
+    function hitung() {
+      try {
+        layar.value = eval(layar.value); // Evaluasi ekspresi dan tampilkan hasil
+      } catch {
+        layar.value = "Error"; // Tampilkan error jika ekspresi salah
+      }
+    }
+  </script>
+</body>
+</html>
